@@ -1,0 +1,65 @@
+;
+; ExperimentDriver.inf
+;
+; Installation file for a minimal KMDF software-only driver.
+; "Software-only" means it is not bound to any hardware; you install it
+; manually for learning/testing inside a VM.
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Sample
+ClassGuid   = {78A1C341-4539-11d3-B88D-00C04FAD5171}
+Provider    = %ProviderName%
+CatalogFile = ExperimentDriver.cat
+DriverVer   =
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13   ; DIRID_DRIVERS (the driver store package directory)
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+ExperimentDriver.sys = 1
+
+;
+; Install section
+;
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$.10.0...16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%DeviceDesc% = ExperimentDriver_Install, Root\ExperimentDriver
+
+[ExperimentDriver_Install.NT]
+CopyFiles = ExperimentDriver_CopyFiles
+
+[ExperimentDriver_CopyFiles]
+ExperimentDriver.sys
+
+[ExperimentDriver_Install.NT.Services]
+AddService = ExperimentDriver, 0x00000002, ExperimentDriver_Service
+
+[ExperimentDriver_Service]
+DisplayName   = %DeviceDesc%
+ServiceType   = 1   ; SERVICE_KERNEL_DRIVER
+StartType     = 3   ; SERVICE_DEMAND_START
+ErrorControl  = 1   ; SERVICE_ERROR_NORMAL
+ServiceBinary = %13%\ExperimentDriver.sys
+
+;
+; KMDF coinstaller / version binding
+;
+[ExperimentDriver_Install.NT.Wdf]
+KmdfService = ExperimentDriver, ExperimentDriver_wdfsect
+
+[ExperimentDriver_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+ProviderName     = "Experiment"
+ManufacturerName = "Experiment"
+DiskName         = "ExperimentDriver Installation Disk"
+DeviceDesc       = "Experiment Kernel Driver"
